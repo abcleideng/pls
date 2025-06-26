@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>私家侦探</title>
+  <style>
+    body {
+      margin:0;
+      min-height:100vh;
+      background:linear-gradient(135deg,#23243a 0%,#1a1b2b 100%);
+      font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+      color:#f3f6fa;
+      letter-spacing:0.5px;
+    }
+    .container {
+      max-width:520px;
+      margin:0 auto;
+      padding:18px 8px 12px 8px;
+    }
+    .title {
+      font-size:26px;
+      font-weight:900;
+      margin-bottom:18px;
+      color:#fff;
+      letter-spacing:2px;
+      text-shadow:0 2px 16px #00eaff44,0 1px 0 #222;
+      text-align:center;
+      user-select:none;
+    }
+    .input-area {
+      margin-bottom:18px;
+      background:rgba(30,34,60,0.85);
+      border-radius:16px;
+      box-shadow:0 2px 16px #00eaff22;
+      padding:14px 10px 10px 10px;
+    }
+    textarea {
+      width:100%; min-height:100px; border-radius:10px; border:none;
+      font-size:15px; padding:10px; resize:vertical; box-sizing:border-box;
+      background:rgba(36,38,60,0.95); color:#fff; outline:none;
+      font-family:inherit;
+      box-shadow:0 1px 6px #00eaff22 inset;
+      margin-bottom:8px;
+      transition:.2s;
+    }
+    textarea:focus { box-shadow:0 2px 12px #00eaff55 inset; }
+    .parse-btn {
+      background:linear-gradient(90deg,#00eaff 0%,#0051ff 100%);
+      color:#fff; border:none; border-radius:8px;
+      padding:12px 0; width:100%; font-size:17px; font-weight:700; cursor:pointer;
+      box-shadow:0 2px 12px #00eaff55;
+      letter-spacing:1px;
+      transition:.2s;
+      margin-bottom:2px;
+    }
+    .parse-btn:active { filter:brightness(0.92);}
+    .grid49 {
+      display:grid; grid-template-columns:repeat(7,1fr); gap:10px;
+      margin-bottom:10px;
+    }
+    .num-block {
+      background:rgba(36,38,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff22,0 1px 2px #0004;
+      min-height:60px;
+      display:flex; flex-direction:column; align-items:center; position:relative;
+      transition:.2s;
+      padding:8px 4px 8px 4px;
+      overflow:hidden;
+    }
+    .num-btn {
+      width:38px; height:38px; border-radius:50%;
+      background:linear-gradient(135deg,#00eaff 0%,#0051ff 100%);
+      color:#fff; font-size:19px; font-weight:800;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:4px; cursor:pointer; border:2px solid #00eaff;
+      box-shadow:0 2px 12px #00eaff55,0 1px 2px #0004;
+      user-select:none;
+      transition:.2s;
+      outline:none;
+      position:relative;
+      z-index:2;
+    }
+    .num-btn.active {
+      background:linear-gradient(135deg,#fff 0%,#00eaff 100%);
+      color:#0051ff;
+      border-color:#fff;
+      box-shadow:0 0 0 3px #00eaff99,0 2px 12px #00eaff77;
+      transform:scale(1.08);
+    }
+    .user-list {
+      margin-top:2px; width:100%; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-start;
+      gap:4px 6px;
+      animation:fadeIn .4s;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(10px);}
+      to { opacity:1; transform:translateY(0);}
+    }
+    .user-tag {
+      background:linear-gradient(90deg,#00eaff33 0%,#0051ff33 100%);
+      color:#fff; border-radius:8px; padding:2px 7px; font-size:12px; margin:1px 0;
+      box-shadow:0 1px 8px #00eaff33;
+      text-shadow:0 1px 4px #0051ff55;
+      font-weight:500;
+      letter-spacing:0.5px;
+      transition:.2s;
+      white-space:nowrap;
+    }
+    .count {
+      font-size:13px; color:#00eaff; margin-bottom:2px; font-weight:700;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .detail-panel {
+      margin-top:18px;
+      background:rgba(30,34,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff33;
+      padding:14px 10px 10px 10px;
+    }
+    .detail-title {
+      font-size:16px;
+      font-weight:700;
+      color:#00eaff;
+      margin-bottom:10px;
+      letter-spacing:1px;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .detail-list {
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .detail-item {
+      color:#fff;
+      font-size:13px;
+      background:linear-gradient(90deg,#00eaff22 0%,#0051ff22 100%);
+      border-radius:7px;
+      padding:5px 10px;
+      word-break:break-all;
+      box-shadow:0 1px 4px #00eaff22;
+      letter-spacing:1px;
+    }
+    .stat-panel {
+      margin-top:18px;
+      background:rgba(30,34,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff33;
+      padding:14px 10px 10px 10px;
+    }
+    .stat-title {
+      font-size:16px;
+      font-weight:700;
+      color:#00eaff;
+      margin-bottom:10px;
+      letter-spacing:1px;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .stat-list {
+      font-size:13px;
+      color:#fff;
+      line-height:1.8;
+      word-break:break-all;
+    }
+    @media (max-width: 400px) {
+      .container { padding:2px; }
+      .num-btn { width:28px; height:28px; font-size:15px;}
+      .user-tag { font-size:10px; padding:2px 4px;}
+      .title { font-size:20px;}
+      .detail-title, .stat-title { font-size:14px;}
+      .detail-item, .stat-list { font-size:11px; padding:3px 6px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">私家侦探</div>
+    <div class="input-area">
+      <textarea id="inputData" placeholder="请粘贴你的数据，每天都可以换"></textarea>
+      <button class="parse-btn" onclick="parseAndRender()">解析数据</button>
+    </div>
+    <div class="grid49" id="grid49"></div>
+    <div id="detailPanel"></div>
+    <div id="statPanel"></div>
+  </div>
+<script>
+let users = [];
+let numUserMap = {};
+let activeNums = {};
+
+function parseUserData(raw) {
+  const blocks = raw.split(/\n\s*\n/);
+  const users = [];
+  for (let block of blocks) {
+    let lines = block.split('\n').map(l=>l.trim()).filter(Boolean);
+    if (lines.length === 0) continue;
+    let name = '';
+    let nums = [];
+    let firstLine = lines[0];
+    let m = firstLine.match(/^(.+?)[:：]/);
+    if (m) name = m[1].trim();
+    if (!name) name = firstLine.replace(/新澳.*|新奥.*|12码.*|12碼.*/g,'').trim();
+    if (!name && lines.length > 1) {
+      let m2 = lines[1].match(/^(.+?)[:：]/);
+      if (m2) name = m2[1].trim();
+      if (!name) name = lines[1].replace(/新澳.*|新奥.*|12码.*|12碼.*/g,'').trim();
+    }
+    let numStr = '';
+    for (let l of lines) {
+      let mm = l.match(/(?:12码|12碼)[:：]?\s*([\d.,\s]+)/i);
+      if (mm) { numStr = mm[1]; break; }
+    }
+    if (!numStr) {
+      let maxLen = 0;
+      for (let l of lines) {
+        let nstr = l.replace(/[^\d.,\s]/g,'');
+        if (nstr.replace(/\D/g,'').length > maxLen) {
+          maxLen = nstr.replace(/\D/g,'').length;
+          numStr = nstr;
+        }
+      }
+    }
+    nums = numStr.replace(/[，,\.]/g, ' ')
+      .split(/\s+/)
+      .map(n => n.padStart(2, '0'))
+      .filter(n => /^\d{2}$/.test(n));
+    if (!name || name === '匿名' || nums.length === 0) continue;
+    users.push({ name, nums });
+  }
+  const map = {};
+  users.forEach(u => {
+    let key = u.name + u.nums.join(',');
+    map[key] = u;
+  });
+  return Object.values(map);
+}
+
+function buildNumUserMap(users) {
+  const map = {};
+  for (let i = 1; i <= 49; i++) {
+    let num = i.toString().padStart(2, '0');
+    map[num] = [];
+  }
+  users.forEach(u => {
+    u.nums.forEach(num => {
+      if (map[num] && u.name) map[num].push(u.name);
+    });
+  });
+  for (let k in map) {
+    map[k] = Array.from(new Set(map[k]));
+  }
+  return map;
+}
+
+function getSelectedUsersDetail() {
+  const selectedUserMap = {};
+  Object.keys(activeNums).forEach(num => {
+    if (activeNums[num]) {
+      (numUserMap[num] || []).forEach(name => {
+        const user = users.find(u => u.name === name);
+        if (user) selectedUserMap[user.name] = user;
+      });
+    }
+  });
+  return Object.values(selectedUserMap);
+}
+
+// 新增：统计所有选中用户的所有数字出现次数
+function getSelectedNumsStat(selectedUsers) {
+  const stat = {};
+  for (let i = 1; i <= 49; i++) stat[i.toString().padStart(2, '0')] = 0;
+  selectedUsers.forEach(u => {
+    u.nums.forEach(num => {
+      if (stat[num] !== undefined) stat[num]++;
+    });
+  });
+  // 分组：次数->数字数组
+  const group = {};
+  Object.entries(stat).forEach(([num, count]) => {
+    if (!group[count]) group[count] = [];
+    group[count].push(num);
+  });
+  // 排序：次数降序
+  const sorted = Object.entries(group)
+    .filter(([count, arr]) => arr.length > 0)
+    .sort((a, b) => b[0] - a[0]);
+  return sorted;
+}
+
+function renderGrid49() {
+  const grid = document.getElementById('grid49');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 49; i++) {
+    let num = i.toString().padStart(2, '0');
+    let block = document.createElement('div');
+    block.className = 'num-block';
+    let btn = document.createElement('div');
+    btn.className = 'num-btn' + (activeNums[num] ? ' active' : '');
+    btn.innerText = num;
+    btn.onclick = function() {
+      activeNums[num] = !activeNums[num];
+      renderGrid49();
+      renderDetailPanel();
+      renderStatPanel();
+    };
+    block.appendChild(btn);
+    let userList = numUserMap[num] || [];
+    let count = document.createElement('div');
+    count.className = 'count';
+    count.innerText = userList.length + '人';
+    block.appendChild(count);
+    if (activeNums[num]) {
+      let ul = document.createElement('div');
+      ul.className = 'user-list';
+      userList.forEach(name => {
+        let tag = document.createElement('span');
+        tag.className = 'user-tag';
+        tag.innerText = name;
+        ul.appendChild(tag);
+      });
+      block.appendChild(ul);
+    }
+    grid.appendChild(block);
+  }
+}
+
+function renderDetailPanel() {
+  const detailPanel = document.getElementById('detailPanel');
+  const selectedUsers = getSelectedUsersDetail();
+  if (selectedUsers.length === 0) {
+    detailPanel.innerHTML = '';
+    return;
+  }
+  let html = `<div class="detail-panel">
+    <div class="detail-title">选中数字下所有用户的原始数据</div>
+    <div class="detail-list">`;
+  selectedUsers.forEach(u => {
+    html += `<div class="detail-item">${u.name}：${u.nums.join(' ')}</div>`;
+  });
+  html += `</div></div>`;
+  detailPanel.innerHTML = html;
+}
+
+function renderStatPanel() {
+  const statPanel = document.getElementById('statPanel');
+  const selectedUsers = getSelectedUsersDetail();
+  if (selectedUsers.length === 0) {
+    statPanel.innerHTML = '';
+    return;
+  }
+  const statArr = getSelectedNumsStat(selectedUsers);
+  let html = `<div class="stat-panel">
+    <div class="stat-title">数字出现次数统计</div>
+    <div class="stat-list">`;
+  statArr.forEach(([count, nums]) => {
+    if (parseInt(count) === 0) return; // 不显示0次
+    html += `〖${count}次〗${nums.join(' ')}（共计${nums.length}个）<br>`;
+  });
+  // 统计0次的数字
+  let zeroNums = statArr.find(([count]) => parseInt(count) === 0);
+  if (zeroNums && zeroNums[1].length > 0) {
+    html += `〖0次〗${zeroNums[1].join(' ')}（共计${zeroNums[1].length}个）<br>`;
+  }
+  html += `</div></div>`;
+  statPanel.innerHTML = html;
+}
+
+function parseAndRender() {
+  const raw = document.getElementById('inputData').value;
+  users = parseUserData(raw);
+  numUserMap = buildNumUserMap(users);
+  activeNums = {};
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+
+window.onload = function() {
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+};
+</script>
+</body>
+</html>
